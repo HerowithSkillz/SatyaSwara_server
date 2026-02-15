@@ -26,9 +26,18 @@ SAMPLE_RATE = 16000
 MAX_DURATION_SECONDS = 4.0  # Memory safety: truncate to 4 seconds for inference
 MAX_AUDIO_DURATION_ACCEPT = 60  # Accept up to 1 minute of MP3 audio
 MAX_REQUEST_BODY_BYTES = 12 * 1024 * 1024  # 12MB max request body
-VALID_API_KEYS = {
-    os.getenv("API_KEY", "sk_live_ai_voice_detect_2026_xKp9Qm3R"),
-}
+# SECURE WAY: Read directly from .env. Returns None if missing.
+api_key_from_env = os.getenv("API_KEY")
+
+# Safety Check: Stop server if key is missing (Optional but recommended)
+if not api_key_from_env:
+    # If you want the server to CRASH if the key is missing (Safest):
+    raise ValueError("CRITICAL ERROR: 'API_KEY' not found in .env file!")
+    
+    # OR, if you just want a warning log:
+    # logger.warning("⚠️  WARNING: API Key not found! Authentication may fail.")
+
+VALID_API_KEYS = { api_key_from_env }
 
 # Logging configuration
 logging.basicConfig(
