@@ -1,0 +1,4 @@
+Deepfake-audio-detection/
+venv/
+__pycache__/
+*.env

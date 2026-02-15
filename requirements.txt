@@ -1,0 +1,22 @@
+# AI Voice Detection API - Requirements
+# ======================================
+
+# Web Framework
+fastapi
+uvicorn[standard]
+
+# Machine Learning (CPU-only torch = much smaller download)
+torch --index-url https://download.pytorch.org/whl/cpu
+transformers
+
+# Audio Processing
+librosa
+soundfile
+numpy
+scipy
+
+# Environment variables
+python-dotenv
+
+# Production Server
+gunicorn

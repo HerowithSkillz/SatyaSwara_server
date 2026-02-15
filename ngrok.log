@@ -1,0 +1,23 @@
+nohup: ignoring input
+t=2026-02-13T08:49:48+0000 lvl=info msg="command usage" msg="Flag --domain has been deprecated, use --url instead"
+t=2026-02-13T08:49:48+0000 lvl=info msg="no configuration paths supplied"
+t=2026-02-13T08:49:48+0000 lvl=info msg="using configuration at default config path" path=/root/.config/ngrok/ngrok.yml
+t=2026-02-13T08:49:48+0000 lvl=info msg="open config file" path=/root/.config/ngrok/ngrok.yml err=nil
+t=2026-02-13T08:49:48+0000 lvl=info msg="FIPS 140 mode" enabled=false
+t=2026-02-13T08:49:48+0000 lvl=info msg="starting web service" obj=web addr=127.0.0.1:4040 allow_hosts=[]
+t=2026-02-13T08:49:48+0000 lvl=info msg="client session established" obj=tunnels.session
+t=2026-02-13T08:49:48+0000 lvl=info msg="tunnel session started" obj=tunnels.session
+t=2026-02-13T08:49:48+0000 lvl=info msg="update available" obj=updater
+t=2026-02-13T08:49:48+0000 lvl=info msg="started tunnel" obj=tunnels name=command_line addr=http://localhost:8001 url=https://nontroubling-veiledly-damon.ngrok-free.dev
+t=2026-02-13T08:50:03+0000 lvl=warn msg="failed to open private leg" id=c4fb9ec0f42d privaddr=localhost:8001 err="dial tcp [::1]:8001: connect: connection refused"
+t=2026-02-13T08:52:46+0000 lvl=info msg="join connections" obj=join id=32bc496d598d l=127.0.0.1:8001 r=219.90.101.150:50997
+t=2026-02-13T09:32:38+0000 lvl=info msg="join connections" obj=join id=f04a8b109a11 l=127.0.0.1:8001 r=219.90.101.150:57276
+t=2026-02-13T09:32:56+0000 lvl=info msg="join connections" obj=join id=454e964ca458 l=127.0.0.1:8001 r=219.90.101.150:51570
+t=2026-02-13T09:33:19+0000 lvl=info msg="join connections" obj=join id=2df9e9583cdd l=127.0.0.1:8001 r=219.90.101.150:58128
+t=2026-02-13T09:37:29+0000 lvl=info msg="received stop request" obj=app stopReq="{err:<nil> restart:false}"
+t=2026-02-13T09:37:29+0000 lvl=info msg="session closing" obj=tunnels.session err=nil
+t=2026-02-13T09:37:29+0000 lvl=info msg="accept failed" obj=tunnels.session obj=csess id=8f0d59e84624 err="reconnecting session closed"
+t=2026-02-13T09:37:29+0000 lvl=info msg="failed to accept connection: Listener closed" obj=tunnels.session clientid=acbd59c1da0f7e7b41ab4ecf7abc5991
+t=2026-02-13T09:37:29+0000 lvl=warn msg="Stopping forwarder" name=command_line acceptErr="failed to accept connection: Listener closed"
+t=2026-02-13T09:37:29+0000 lvl=warn msg="Error restarting forwarder" name=command_line err="failed to start tunnel: session closed"
+t=2026-02-13T09:37:29+0000 lvl=info msg="no more state changes" obj=tunnels.session
