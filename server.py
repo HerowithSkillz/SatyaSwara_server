@@ -26,6 +26,10 @@ SAMPLE_RATE = 16000
 MAX_DURATION_SECONDS = 4.0  # Memory safety: truncate to 4 seconds for inference
 MAX_AUDIO_DURATION_ACCEPT = 60  # Accept up to 1 minute of MP3 audio
 MAX_REQUEST_BODY_BYTES = 12 * 1024 * 1024  # 12MB max request body
+
+# Define allowed languages for graceful validation
+ALLOWED_LANGUAGES = {"English", "Hindi", "Malayalam", "Tamil", "Telugu"}
+
 # SECURE WAY: Read directly from .env. Returns None if missing.
 api_key_from_env = os.getenv("API_KEY")
 
@@ -33,9 +37,6 @@ api_key_from_env = os.getenv("API_KEY")
 if not api_key_from_env:
     # If you want the server to CRASH if the key is missing (Safest):
     raise ValueError("CRITICAL ERROR: 'API_KEY' not found in .env file!")
-    
-    # OR, if you just want a warning log:
-    # logger.warning("⚠️  WARNING: API Key not found! Authentication may fail.")
 
 VALID_API_KEYS = { api_key_from_env }
 
@@ -159,9 +160,10 @@ app = FastAPI(
 class VoiceDetectionRequest(BaseModel):
     """Request schema for voice detection endpoint."""
 
-    language: Literal["Tamil", "English", "Hindi", "Malayalam", "Telugu"] = Field(
+    # CHANGED: Use str instead of Literal to avoid auto-422 error on unsupported languages
+    language: str = Field(
         ...,
-        description="Language of the audio"
+        description="Language of the audio (English, Hindi, Malayalam, Tamil, Telugu)"
     )
     audioFormat: Literal["mp3"] = Field(
         ...,
@@ -274,7 +276,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     # Extract the first error message for clarity
     error_msg = exc.errors()[0].get('msg') if exc.errors() else str(exc)
     field_name = exc.errors()[0].get('loc')[-1] if exc.errors() else "field"
-    
+
     return JSONResponse(
         status_code=422,
         content={"status": "error", "message": f"Validation Error in '{field_name}': {error_msg}"}
@@ -337,7 +339,19 @@ async def detect_voice(
             content={"status": "error", "message": "Unauthorized: Invalid or missing x-api-key header"}
         )
 
-    # 2. Decode Base64 Audio (Specific Error)
+    # 2. Validate Language (NEW: Gracefully reject unsupported languages)
+    # This prevents the 422 error and returns a proper JSON error message
+    if request.language not in ALLOWED_LANGUAGES:
+        logger.warning(f"Unsupported language request: {request.language}")
+        return JSONResponse(
+            status_code=400,
+            content={
+                "status": "error", 
+                "message": f"Language '{request.language}' is not supported. Allowed: {', '.join(sorted(ALLOWED_LANGUAGES))}"
+            }
+        )
+
+    # 3. Decode Base64 Audio (Specific Error)
     try:
         audio_bytes = decode_base64_audio(request.audioBase64)
         logger.info(f"📥 Received audio: {len(audio_bytes)} bytes, language: {request.language}")
@@ -348,7 +362,7 @@ async def detect_voice(
             content={"status": "error", "message": f"Invalid Base64 string: {str(e)}"}
         )
 
-    # 3. Load and Process Audio (Specific Error)
+    # 4. Load and Process Audio (Specific Error)
     try:
         audio_array = load_audio_from_bytes(audio_bytes)
         logger.info(f"🎵 Audio loaded: {len(audio_array)} samples")
@@ -359,7 +373,7 @@ async def detect_voice(
             content={"status": "error", "message": f"Unprocessable Audio File: {str(e)}. Ensure valid MP3 format."}
         )
 
-    # 4. Run Model Prediction
+    # 5. Run Model Prediction
     try:
         classification, confidence = model_manager.predict(audio_array)
         logger.info(f"🎯 Prediction: {classification} ({confidence:.2%})")
@@ -370,7 +384,7 @@ async def detect_voice(
             content={"status": "error", "message": "Model inference failed. Check server logs."}
         )
 
-    # 5. Generate Explanation & Return
+    # 6. Generate Explanation & Return
     explanation = generate_explanation(classification, confidence)
 
     return SuccessResponse(
