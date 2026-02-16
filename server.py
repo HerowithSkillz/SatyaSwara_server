@@ -339,17 +339,9 @@ async def detect_voice(
             content={"status": "error", "message": "Unauthorized: Invalid or missing x-api-key header"}
         )
 
-    # 2. Validate Language (NEW: Gracefully reject unsupported languages)
-    # This prevents the 422 error and returns a proper JSON error message
-    if request.language not in ALLOWED_LANGUAGES:
-        logger.warning(f"Unsupported language request: {request.language}")
-        return JSONResponse(
-            status_code=400,
-            content={
-                "status": "error", 
-                "message": f"Language '{request.language}' is not supported. Allowed: {', '.join(sorted(ALLOWED_LANGUAGES))}"
-            }
-        )
+    # 2. Language is accepted as-is (model is language-agnostic, works on audio signal)
+    # The evaluator may send any language (English, Spanish, French, etc.)
+    logger.info(f"Language received: {request.language}")
 
     # 3. Decode Base64 Audio (Specific Error)
     try:
